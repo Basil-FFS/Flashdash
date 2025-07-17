@@ -14,6 +14,7 @@ app.use(cors({
     "https://flashfinancialsolutions.com",
     "https://www.flashfinancialsolutions.com",
     "https://flashdash.vip"
+    "https://www.flashdash.vip",
   ],
   credentials: true
 }));
