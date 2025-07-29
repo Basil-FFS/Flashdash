@@ -13,9 +13,10 @@ const allowedOrigins = [
   "https://www.flashfinancialsolutions.com",
   "https://flashdash.vip",
   "https://www.flashdash.vip",
+  "https://flashdash-psi.vercel.app"
 ];
 
-// ✅ CORS middleware — place before routes
+// CORS middleware — dynamic origin check and credentials enabled
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -27,37 +28,36 @@ app.use(cors({
   credentials: true,
 }));
 
-// ✅ Enable preflight for all routes
-app.options("*", cors());
-
+// Parse JSON bodies
 app.use(express.json());
 
 console.log("JWT_SECRET:", process.env.JWT_SECRET);
 console.log("DATABASE_URL:", process.env.DATABASE_URL);
 console.log("Running in Lambda:", !process.env.IS_OFFLINE);
 
-// Routes
+// Import routes
 const authRoutes = require("./routes/auth");
 const adminRoutes = require("./routes/admin");
 const forthcrmRoutes = require("./routes/forthcrm");
 
+// Route handlers
 app.use("/api", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/forthcrm", forthcrmRoutes);
 
-// 🔒 Optional: Error handler (not needed for CORS now)
+// Error handler
 app.use((err, req, res, next) => {
-  console.error("ERROR:", err);
+  console.error("ERROR:", err.message || err);
   res.status(500).json({ error: "Internal Server Error" });
 });
 
-// Lambda export
+// Export Lambda handler
 module.exports.handler = serverless(app);
 
-// Local dev
+// Start local server if not in production
 if (process.env.NODE_ENV !== 'production') {
   app.listen(port, "127.0.0.1", () => {
-    console.log(`Server running on http://localhost:${port}`);
+    console.log(`Server running locally on http://localhost:${port}`);
   });
 }
 
